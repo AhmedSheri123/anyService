@@ -1,0 +1,129 @@
+{% extends "practitioner_base.html" %}
+
+{% block sheri %}
+<div class="container px-4 px-md-5 py-3">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">الخطط</h1>
+        <p class="fs-5 text-body-secondary">
+            استمتع بخطط أسعار مرنة تناسب احتياجاتك وتتيح لك الاشتراك بسهولة دون أي تعقيدات. نحن نضمن لك تجربة قيمة تتيح
+            لك الوصول إلى العملاء وإدارة خدماتك بكفاءة عالية. اختر الخطة التي تناسبك وابدأ في الاستفادة من منصتنا اليوم.
+        </p>
+    </div>
+
+    <main>
+
+        <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+            {% for plan in subscriptions %}
+            <div class="col">
+                <div
+                    class="card mb-4 rounded-3 shadow-sm {% if plan.plan_type == 'premium' %} border-{{plan.Theem}} {% endif %}">
+                    <div
+                        class="card-header py-3 {% if plan.plan_type == 'premium' %} text-bg-{{plan.Theem}} border-{{plan.Theem}} {% endif %}">
+                        <h4 class="my-0 fw-normal">{{plan.title}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="monthlyPrice">
+                            <h1 class="card-title pricing-card-title">{% if plan.price == 0 %}مجاني{% else %}
+                                ${{plan.price}}{%endif%}<small
+                                    class="text-body-secondary fw-light">/{{plan.get_plan_scope_display}}</small></h1>
+                            <p class="text-success">{% if plan.discont != 0%}{{plan.discont}}% Discounted{%endif%}</p>
+                        </div>
+
+
+                        <ul class="list-unstyled mt-3 mb-4 text-start">
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    عدد غير محدود من الخدمات
+                                </span>
+                            </li>
+
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    عدد غير محدود من الطلبات
+                                </span>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    دردشة أمنة غير محدودة
+                                </span>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                 ارسال صوت, صورة, ملفات
+                                </span>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    نظام إشعارات
+                                </span>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    ميزة العروض والتخفيضات
+                                </span>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    نظام تقييم وتحليل الأداء
+                                </span>
+                            </li>
+
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    الرد على تعليقات العملاء
+                                </span>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    تخصيص الملف الشخصي
+                                </span>
+                            </li>
+                            <li class="d-flex justify-content-between">
+                                <span class="mx-3">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                                <span>
+                                    دعم فني مخصص
+                                </span>
+                            </li>
+
+
+
+                        </ul>
+                        <button type="button" onclick="select_plan(this)" data-serviceid="{{plan.id}}"
+                            class="w-100 btn btn-lg {% if plan.plan_type == 'premium' or plan.plan_type == 'pro' %} btn-{{plan.Theem}} {% else %} btn-outline-{{plan.Theem}} {% endif %}">ابداء</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}

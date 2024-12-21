@@ -1,0 +1,175 @@
+{% extends "customer_base.html" %}
+{% load customer_tags %}
+
+{% block sheri %}
+
+
+<div class="container px-4 px-md-5 py-3">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">طلباتي</h1>
+
+    </div>
+
+    <main class="d-md-flex">
+
+        <div class="w-100">
+          <div class="my-3 p-3 bg-body rounded shadow-sm">
+            <h6 class="border-bottom pb-2 mb-0">جميع طلباتي</h6>
+            {% for ser_req in ser_reqs %}
+            <div class="d-flex text-body-secondary pt-3">
+              <img src="{{ser_req.service.provider.userprofile.profile_img_base64}}" class="bd-placeholder-img flex-shrink-0 me-2 rounded-circle" width="32" height="32">
+              <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <a href="{% url 'PVProfile' ser_req.service.provider.id %}">
+                      <strong class="text-gray-dark">{{ser_req.service.provider.userprofile.get_full_name}}</strong>
+                    </a>
+                    <p>{{ser_req.when_updated}}</p>
+                  </div>
+
+                  {% if ser_req.status == 'pending' %}
+                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#DelSerModal{{ser_req.id}}">الغاء الطلب</button>
+                  {% elif ser_req.status == 'rejected' %}
+                    <button class="btn btn-sm btn-danger disabled">تم الرفض</button>
+                  {% elif ser_req.status == 'accepted' %}
+                  <div class="text-end">
+                    <a href="{% url 'createMessager' ser_req.service.provider.id ser_req.id %}" type="button" class="btn btn-sm btn-outline-primary">بدء المحادثة</a>
+                    {% get_request_service_review ser_req.id request.user.id as review %}
+                    {% if review %}
+                    
+                    <div class="my-2">
+                      {% for i in review.create_rating_range %}
+                        {% if i %}
+                        <i class="fa-solid fa-star"></i>
+                        {% else %}
+                        <i class="fa-regular fa-star"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    {% else %}
+                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#ReviewSerModal{{ser_req.id}}">قيم الخدمة</button>
+                    {% endif %}
+                  </div>
+                  {% elif ser_req.status == 'completed' %}
+                    <button class="btn btn-sm btn-success disabled">مكتمل</button>
+                    {% endif %}
+                </div>
+                <div>
+                  الخدمة: <a href="{% url 'Service' ser_req.service.id %}" class="">{{ser_req.service.name}}</a>
+                </div>
+                <div>
+                  الحالة: 
+                  <strong>{{ser_req.get_status_display}}</strong>
+                </div>
+              </div>
+            </div>
+
+                  <!-- Delete Modal -->
+                  <div class="modal fade" id="DelSerModal{{ser_req.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content rounded-3 shadow">
+                        <div class="modal-body p-4 text-center">
+                          <h5 class="mb-0">هل انت متأكد من الحذف؟</h5>
+                          <p class="mb-0">بعد عملية حذف الطلب يمكنك طلبه مرا اخرى.</p>
+                        </div>
+                        <div class="modal-footer flex-nowrap p-0">
+                          <a href="{% url 'CanselServiceRequest' ser_req.id %}" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0 border-end"><strong>نعم, أحذف</strong></a>
+                          <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0" data-bs-dismiss="modal">لا شكرا</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Review Modal -->
+                   <div class="modal fade" id="ReviewSerModal{{ser_req.id}}" tabindex="-1" aria-labelledby="ReviewSerModalLabel"
+                    aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered" role="document">
+                      <form action="{% url 'ReviewRequestService' ser_req.id %}" method="post" class="modal-content rounded-4 shadow">
+                        {% csrf_token %}
+                        <div class="modal-header border-bottom-0">
+                          <h1 class="modal-title fs-5">تقيم الخدمة</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body py-0">
+                          <div class="row row-cols-2 my-3">
+                            <div class="col-2 rate d-grid justify-content-start">
+                              <input type="radio" id="star{{ser_req.id}}5" name="rate" value="5" />
+                              <label for="star{{ser_req.id}}5" title="text"><i class="fa-solid fa-star ms-1"></i></label>
+                              <input type="radio" id="star{{ser_req.id}}4" name="rate" value="4" />
+                              <label for="star{{ser_req.id}}4" title="text"><i class="fa-solid fa-star ms-1"></i></label>
+                              <input type="radio" id="star{{ser_req.id}}3" name="rate" value="3" />
+                              <label for="star{{ser_req.id}}3" title="text"><i class="fa-solid fa-star ms-1"></i></label>
+                              <input type="radio" id="star{{ser_req.id}}2" name="rate" value="2" />
+                              <label for="star{{ser_req.id}}2" title="text"><i class="fa-solid fa-star ms-1"></i></label>
+                              <input type="radio" id="star{{ser_req.id}}1" name="rate" value="1" />
+                              <label for="star{{ser_req.id}}1" title="text"><i class="fa-solid fa-star ms-1"></i></label>
+                            </div>
+                            <div class="col-9">
+                              <p>تحدث لنا عن تجربتك لخدمة {{ser_req.service.name}}</p>
+                  
+                              <textarea name="comment" class="form-control" rows="5"></textarea>
+                  
+                            </div>
+                          </div>
+                  
+                        </div>
+                        <div class="modal-footer flex-column align-items-stretch w-100 gap-2 pb-3 border-top-0">
+                          <button type="submit" class="btn btn-lg btn-success">قيم</button>
+                          <button type="button" class="btn btn-lg btn-secondary" data-bs-dismiss="modal">الغاء</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+            {% empty %}
+            <p class="text-center mt-5">لا يوجد طلبات حالياََ</p>
+
+            {% endfor %}
+
+            
+            <small class="d-block text-end mt-3">
+              <a href="#">All suggestions</a>
+            </small>
+          </div>
+    
+        </div>
+
+
+    </main>
+</div>
+
+<style>
+
+
+.rate:not(:checked) > input {
+    position:absolute;
+    top:-9999px;
+}
+.rate:not(:checked) > label {
+    float:right;
+    /* width:1em; */
+    overflow:hidden;
+    white-space:nowrap;
+    cursor:pointer;
+    font-size:25px;
+    color:#ccc;
+}
+.rate:not(:checked) > label:before {
+  color: #000;
+}
+.rate > input:checked ~ label {
+    color: #ffc700;    
+}
+.rate:not(:checked) > label:hover,
+.rate:not(:checked) > label:hover ~ label {
+    color: #deb217;  
+}
+.rate > input:checked + label:hover,
+.rate > input:checked + label:hover ~ label,
+.rate > input:checked ~ label:hover,
+.rate > input:checked ~ label:hover ~ label,
+.rate > label:hover ~ input:checked ~ label {
+    color: #c59b08;
+}
+
+</style>
+{% endblock %}

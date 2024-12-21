@@ -1,0 +1,429 @@
+{% extends "practitioner_base.html" %}
+{% load customer_tags %}
+{% load static %}
+{% block links %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css" />
+{% endblock links %}
+{% block sheri %}
+
+
+
+<!-- Project Form -->
+<div class="container p-2 p-md-4 pt-5">
+    <!-- <h5 class="mt-5 text-center mb-3">صاحب الخدمة</h5> -->
+
+    <form class="bg-body-tertiary  rounded needs-validation FormAuto" novalidate id="project_form" method="post">
+        <div class="text-center">
+            {% if provider_userprofile.profile_img_base64 %}
+            <div id="cropped-result">
+              <div class="carousel-item-content position-relative d-inline-block rounded-circle overflow-hidden" id="cropped-result">
+                <img src="{{provider_userprofile.profile_img_base64}}" width="150" alt="..." data-bs-toggle="modal" data-bs-target="#cropImagePop">
+                <input type="hidden" value="{{provider_userprofile.profile_img_base64}}" id="userprofile-avatar" name="profile_img" class="form-control" >
+                <i class="bi bi-trash-fill position-absolute fixed-bottom bg-dark text-light" role="button" onclick="CarouselOnclickRemove()"></i>
+              </div>
+            </div>
+            {% else %}
+            <div id="cropped-result">
+              <img src="{% static 'img/profile_default/default-profile-img-2.png' %}" class="d-inline-block rounded-circle mx-auto" width="150" data-bs-toggle="modal" data-bs-target="#cropImagePop">
+              <input type="hidden" id="userprofile-avatar" name="profile_img" class="form-control" >
+            </div>
+            {% endif %}
+        </div>
+
+        <h1 class="text-center fs-3">{{provider.get_full_name}}</h1>
+        <div class="text-center mb-5">
+            <small class="me-2">
+              <i class="fa-solid fa-user"></i>
+              صاحب خدمة
+            </small>
+            <small class="me-2">
+              <i class="fa-solid fa-briefcase"></i>
+              {{provider_profile.specialty}}
+            </small>            
+            <small class="me-2">
+              <i class="fa-solid fa-location-dot"></i>
+              {{provider_userprofile.get_city_display}}
+            </small>            
+        </div>
+
+        {% if provider.id == request.user.id %}
+        <!-- Button trigger modal -->
+         <div class="text-center">
+          <a href="{% url 'Profile' %}" type="button" class="btn btn-warning mt-2 mb-4">
+            تعديل الملف الشخصي
+          </a>
+         </div>
+         {% endif %}
+
+      <!-- End Button trigger modal -->
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link text-dark active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">
+              <i class="fa-solid fa-user"></i>
+              الملف الشخصي
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link text-dark" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">
+              <i class="fa-solid fa-star"></i>
+              التقيمات
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link text-dark" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">
+              <i class="fa-solid fa-briefcase"></i>
+              الخدمات
+            </button>
+          </li>
+
+        </ul>
+        <div class="tab-content bg-white border border-top-0 mb-3" id="myTabContent">
+          <div class="tab-pane fade show active py-3" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">            
+            
+            <div class="p-3">
+              <p>نبذة</p>
+              <hr>
+                {% for breaked in provider_profile.get_splited_desc %}
+                <p class="mb-0">
+                  {{breaked}}
+                </p>
+                {% endfor %}
+            </div>
+
+          </div>
+
+          
+          <div class="tab-pane fade p-3" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+            
+            <div class="w-100">
+              <div class="my-3 p-3 bg-body rounded shadow-sm">
+                <h6 class="border-bottom pb-2 mb-0">جميع التقيمات</h6>
+                {% for review in reviews %}
+                <div class="d-flex text-body-secondary pt-3">
+                  <img src="{{review.reviewer.profile_img_base64}}" class="bd-placeholder-img flex-shrink-0 me-2 rounded-circle" width="32" height="32">
+                  <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                          <strong class="text-gray-dark">{{review.reviewer.get_full_name}}</strong>
+                        <p>{{review.service_request.when_updated}}</p>
+                      </div>
+    
+                      <div class="text-end">
+                        <a href="{% url 'Service' review.service_request.service.id %}" type="button" class="btn btn-sm btn-outline-primary">عرض الخدمة</a>
+                        
+                        <div class="my-2 text-nowrap">
+                          {% for i in review.create_rating_range %}
+                            {% if i %}
+                            <i class="fa-solid fa-star"></i>
+                            {% else %}
+                            <i class="fa-regular fa-star"></i>
+                            {% endif %}
+                          {% endfor %}
+                        </div>
+
+                      </div>
+                    </div>
+                    <p>{{review.comment}}</p>
+
+                  </div>
+                </div>
+                {% empty %}
+                <p class="text-center mt-5">لا يوجد تقيمات حالياََ</p>  
+                {% endfor %}
+    
+              
+              </div>
+        
+            </div>
+          </div>
+
+          <div class="tab-pane fade p-4" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+
+            <div class="w-100">
+              <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+  
+                  {% for service in services %}
+                  <div class="col">
+                      <div class="card shadow-sm">
+                        <img src="{{service.img_base64}}" class="bd-placeholder-img card-img-top" width="100%" height="200">
+                        <div class="card-body">
+                          <p class="card-text">{{service.name}}</p>
+                          <div class="btn-group">
+                          <div class="mb-2">
+                            
+                            <svg style="display:none;">
+                              <defs>
+                                <symbol id="fivestars">
+                                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd"/>
+                                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(24)"/>
+                                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(48)"/>
+                                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(72)"/>
+                                  <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd"  transform="translate(96)"/>
+                                </symbol>
+                              </defs>
+                            </svg>
+                            <div class="rating">
+                              <progress class="rating-bg" value="{{service.get_rating_range}}" max="5"></progress>
+                              <svg><use xlink:href="#fivestars"/></svg>
+                            </div>
+                          </div>
+                          {% get_service_review service.id as service_reviews %}
+                          <p class="ms-1">({{service_reviews.count}})</p>
+  
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center">
+  
+                            <div class="btn-group">
+                              <a href="{% url 'Service' service.id %}" class="btn btn-sm btn-outline-success">عرض</a>
+                              
+                            </div>
+                            <small class="text-body-secondary">{{service.when_updated}}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+  
+                    <!-- Delete Modal -->
+                    <div class="modal fade" id="DelSerModal{{service.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content rounded-3 shadow">
+                          <div class="modal-body p-4 text-center">
+                            <h5 class="mb-0">هل انت متأكد من الحذف؟</h5>
+                            <p class="mb-0">بعد عملية حذف العنصر لا يمكنك استرجاعه مرا اخرى.</p>
+                          </div>
+                          <div class="modal-footer flex-nowrap p-0">
+                            <a href="{% url 'DeleteService' service.id %}" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0 border-end"><strong>نعم, أحذف</strong></a>
+                            <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0" data-bs-dismiss="modal">لا شكرا</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+  
+              </div>
+              {% if not services %}
+              <p class="text-center mt-5 pt-5">لا يوجد خدماتك حالياََ</p>
+              {% endif %}           
+          </div>
+  
+
+          </div>
+        </div>
+
+        <ul class="list-group mb-3">
+          <li class="list-group-item d-flex justify-content-between lh-sm ">
+            <div>
+              <h6 class="my-0">اسم الكامل</h6>
+            </div>
+            <span class="text-body-secondary">{{provider_userprofile.get_full_name}}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <h6 class="my-0">اختصاص</h6>
+            </div>
+            <span class="text-body-secondary">{{provider_userprofile.practitioner_profile.specialty}}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <h6 class="my-0">عدد الخدمات</h6>
+            </div>
+            <span class="text-body-secondary">{{services.count}}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <h6 class="my-0">بريد</h6>
+            </div>
+            <span class="text-body-secondary">{{provider.email}}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <h6 class="my-0">جوال</h6>
+            </div>
+            <span class="text-body-secondary">{{provider_userprofile.phone_number}}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <h6 class="my-0">المدينة</h6>
+            </div>
+            <span class="text-body-secondary">{{provider_userprofile.get_city_display}}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+              <h6 class="my-0">العنوان</h6>
+            </div>
+            <span class="text-body-secondary">{{provider_userprofile.address}}</span>
+          </li>
+
+        </ul>
+
+        
+
+    </form>
+</div>
+<!-- End Project Form -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="cropImagePop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content rounded-4 shadow">
+            <!-- <div class="modal-header p-5 pb-4 border-bottom-0">
+                <h1 class="fw-bold mb-0 fs-2">Change Profile Image</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div> -->
+
+            <div class="modal-body p-5">
+
+                <div class="demo-wrap upload-demo mb-5">
+                    <div class="container mx-0">
+                        <div class="pull-left mb-3">
+
+                            <!-- <label for="exampleInputEmail1" class="form-label">رفع صورة</label> -->
+                            <input type="file" id="upload" class="form-control" value="" accept="image/*" />
+
+                        </div>
+                        <div class="pull-left">
+                            <div class="upload-msg" onclick="document.querySelector('#upload').click()">
+                                معاينة
+                            </div>
+                            <div class="upload-demo-wrap">
+                                <div id="upload-demo"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-100 mb-2 btn btn-lg rounded-3 btn-success upload-result" type="submit">Change</button>
+                <button type="button" class="w-100 mb-2 btn btn-lg rounded-3 btn-dark" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Modal -->
+
+<style>
+.upload-demo .upload-demo-wrap,
+.upload-demo.ready .upload-msg {
+    display: none;
+}
+.upload-demo.ready .upload-result,
+.upload-demo.ready .upload-demo-wrap {
+    display: block;
+}
+.cr-boundary, .cr-boundary img {
+    border-radius: 15px !important;
+}
+
+.upload-demo-wrap {
+    width: min(100%, 300px);
+    height: 300px;
+    margin: 0 auto;
+}
+
+.upload-msg {
+    text-align: center;
+    padding: 50px;
+    font-size: 22px;
+    color: #aaa;
+    width: 260px;
+    margin: 50px auto;
+    border: 1px solid #aaa;
+}
+</style>
+
+<div class="py-4"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+<script>
+  
+    $(document).ready(function(){
+    var $uploadCrop;
+    function readFile(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+    
+        reader.onload = function (e) {
+            $('.upload-demo').addClass('ready');
+            $uploadCrop.croppie('bind', {
+                    url: e.target.result
+            }).then(function(){
+                    console.log('jQuery bind complete');
+            });
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+    else {
+            console.log("Sorry - you're browser doesn't support the FileReader API");
+        }
+    }
+    
+    $uploadCrop = $('#upload-demo').croppie({
+            viewport: {
+                    width: 200,
+                    height: 200,
+                    type: 'circle'
+            },
+            enableExif: true
+    });
+    
+    $('#upload').on('change', function () { readFile(this); });
+    $('.upload-result').on('click', function (ev) {
+    $uploadCrop.croppie('result', {
+      type: 'canvas',
+      size: 'viewport'
+    }).then(function (resp) {
+        // in this hidden input we can send cropped image to server
+        $('#userprofile-avatar').val(resp);
+        $('#cropped-result img').attr('src',resp);
+        $('#cropImagePop').modal('hide');
+    });
+    });    
+    
+    });
+    
+    
+    function CarouselOnclickRemove() {
+      let imgBox = document.querySelector('#cropped-result')
+      imgBox.querySelector('img').src = default_img_profile
+      imgBox.querySelector('input').value = ""
+    }
+    </script>
+
+<style>
+  
+  .rating {
+    width: 120px;
+    height: 24px;
+    position: relative;
+    background-color: gray;
+  }
+  
+  .rating progress.rating-bg {
+    -webkit-appearance: none;
+    -moz-appearence: none;
+    appearance: none;
+    border: none;
+    display: inline-block;
+    height: 24px;
+    width: 100%;
+    color: orange;
+  }
+  
+  .rating progress.rating-bg::-webkit-progress-value {
+    background-color: orange;
+  }
+  
+  .rating progress.rating-bg::-moz-progress-bar {
+    background-color: orange;
+  }
+  
+  .rating svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  </style>
+{% endblock %}

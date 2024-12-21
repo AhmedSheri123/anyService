@@ -1,0 +1,78 @@
+{% extends "practitioner_base.html" %}
+{% load static %}
+{% block sheri %}
+
+
+<div class="container px-4 px-md-5 py-3">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">طلباتي</h1>
+
+    </div>
+
+    <main class="d-md-flex">
+
+        <div class="w-100">
+          <div class="my-3 p-3 bg-body rounded shadow-sm">
+            <h6 class="border-bottom pb-2 mb-0">جميع طلبات خدماتي</h6>
+            {% for ser_req in ser_reqs %}
+            <div class="d-flex text-body-secondary pt-3">
+              {% if ser_req.customer.profile_img_base64 %}
+              <img src="{{ser_req.customer.profile_img_base64}}" class="bd-placeholder-img flex-shrink-0 me-2 rounded-circle" width="32" height="32">
+              {% else %}
+              <img src="{% static 'img/profile_default/default-profile-img-2.png' %}" class="bd-placeholder-img flex-shrink-0 me-2 rounded-circle" width="32" height="32">
+              {% endif %}
+
+              <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                <div class="d-flex justify-content-between">
+                  <strong class="text-gray-dark">{{ser_req.customer.get_full_name}}</strong>
+                  {% if ser_req.status == 'pending' %}
+                  <div class="btn-group">
+                    <a href="{% url 'AcceptServiceRequest' ser_req.id %}" class="btn btn-sm btn-outline-success">موافقة</a>
+                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#DelSerModal{{ser_req.id}}">رفض</button>
+                  </div>
+                  {% elif ser_req.status == 'rejected' %}
+                    <button class="btn btn-sm btn-danger disabled">تم الرفض</button>
+                  {% elif ser_req.status == 'accepted' %}
+                  <a href="{% url 'createMessager' ser_req.customer.user.id ser_req.id %}" type="button" class="btn btn-sm btn-outline-primary">بدء المحادثة</a>
+                  {% elif ser_req.status == 'completed' %}
+                    <button class="btn btn-sm btn-success disabled">مكتمل</button>
+                    {% endif %}
+
+                </div>
+                <span class="d-block">{{ser_req.service.name}}</span>
+              </div>
+            </div>
+
+                  <!-- Delete Modal -->
+                  <div class="modal fade" id="DelSerModal{{ser_req.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content rounded-3 shadow">
+                        <div class="modal-body p-4 text-center">
+                          <h5 class="mb-0">هل انت متأكد؟</h5>
+                          <p class="mb-0">بعد عملية رفض الطلب لا يمكنك استرجاعه مرا اخرى.</p>
+                        </div>
+                        <div class="modal-footer flex-nowrap p-0">
+                          <a href="{% url 'RejectServiceRequest' ser_req.id %}" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0 border-end"><strong>نعم, رفض</strong></a>
+                          <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0" data-bs-dismiss="modal">لا شكرا</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+            {% empty %}
+            <p class="text-center mt-5">لا يوجد طلبات حالياََ</p>
+
+            {% endfor %}
+
+            
+            <small class="d-block text-end mt-3">
+              <a href="#">All suggestions</a>
+            </small>
+          </div>
+    
+        </div>
+
+
+    </main>
+</div>
+{% endblock %}

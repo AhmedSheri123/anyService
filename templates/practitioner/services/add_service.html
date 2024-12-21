@@ -1,0 +1,323 @@
+{% extends "practitioner_base.html" %}
+{% load static %}
+{% block links %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css" />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+{% endblock links %}
+{% block sheri %}
+
+
+<div class="container px-4 px-md-5 py-3">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">اضافة خدمة</h1>
+
+    </div>
+
+    <main class="">
+        <form method="post" class="FormAuto" enctype="multipart/form-data">
+
+          <div class="text-center">
+            {% if service.img_base64 %}
+            <div id="cropped-result">
+              <div class="carousel-item-content position-relative d-inline-block overflow-hidden" id="cropped-result">
+                <img src="{{service.img_base64}}" width="280" alt="..." data-bs-toggle="modal" data-bs-target="#cropImagePop">
+                <input type="hidden" value="{{service.img_base64}}" id="userprofile-avatar" name="profile_img" class="form-control" >
+                <i class="bi bi-trash-fill position-absolute fixed-bottom bg-dark text-light" role="button" onclick="CarouselOnclickRemove()"></i>
+              </div>
+            </div>
+            {% else %}
+            <div id="cropped-result">
+              <img src="{% static 'img/profile_default/default-featured-image.jpg' %}" class="d-inline-block mx-auto" width="280" data-bs-toggle="modal" data-bs-target="#cropImagePop">
+              <input type="hidden" id="userprofile-avatar" name="profile_img" class="form-control" >
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-warning mt-2 mb-4" style="margin: auto;display: block;" data-bs-toggle="modal" data-bs-target="#cropImagePop">
+            رفع صورة للخدمة
+        </button>
+        <!-- End Button trigger modal -->
+
+            {% csrf_token %}
+            {% for field in form %}
+            <div id="{{ field.auto_id }}_error">
+              {{ field.errors }}
+            </div>
+              {{ field.label_tag }} {{ field }}
+              {% if field.help_text %}
+                <p class="help form-text" id="{{ field.auto_id }}_helptext">
+                  {{ field.help_text|safe }}
+                </p>
+              {% endif %}
+          {% endfor %}
+          
+          <div><input type="hidden" name="lat" id="lat"></div>
+          <div><input type="hidden" name="lng" id="lng"></div>
+
+          <button type="button" class="btn btn-primary mb-3 mx-auto d-block" data-bs-toggle="modal" data-bs-target="#SelectLocationModal">ارفاق موقع الخدمة</button>
+
+
+          <button type="submit" class="mb-5 btn btn-success d-block mx-auto">إضافة الخدمة</button>
+        </form>
+
+    </main>
+</div>
+
+
+<!-- service img Modal -->
+<div class="modal fade" id="cropImagePop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content rounded-4 shadow">
+          <!-- <div class="modal-header p-5 pb-4 border-bottom-0">
+              <h1 class="fw-bold mb-0 fs-2">Change Profile Image</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div> -->
+
+          <div class="modal-body p-5">
+
+              <div class="demo-wrap upload-demo mb-5">
+                  <div class="container mx-0">
+                      <div class="pull-left mb-3">
+
+                          <!-- <label for="exampleInputEmail1" class="form-label">رفع صورة</label> -->
+                          <input type="file" id="upload" class="form-control" value="" accept="image/*" />
+
+                      </div>
+                      <div class="pull-left">
+                          <div class="upload-msg" onclick="document.querySelector('#upload').click()">
+                              معاينة
+                          </div>
+                          <div class="upload-demo-wrap">
+                              <div id="upload-demo"></div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <button class="w-100 mb-2 btn btn-lg rounded-3 btn-success upload-result" type="submit">Change</button>
+              <button type="button" class="w-100 mb-2 btn btn-lg rounded-3 btn-dark" data-bs-dismiss="modal">Close</button>
+
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+<!-- Modal Select Location-->
+<div class="modal fade" id="SelectLocationModal" tabindex="-1" aria-labelledby="SelectLocationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="SelectLocationModalLabel">تحديد الموقع</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <button onclick="getLocation()" class="btn btn-primary mb-3 mx-auto d-block">
+              <i class="bi bi-geo-alt-fill"></i>
+              الحصول على الموقع الحالي
+          </button>
+              <div id="map" style="height:70vh;width:100%;"></div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary"
+              data-bs-dismiss="modal">اغلاق</button>
+              <button type="button" class="btn btn-primary" onclick="SelectLocation()">تحديد الموقع</button>
+          </div>
+      </div>
+  </div>
+</div>
+<!-- End Modal Select Location-->
+
+<style>
+  .upload-demo .upload-demo-wrap,
+  .upload-demo.ready .upload-msg {
+      display: none;
+  }
+  .upload-demo.ready .upload-result,
+  .upload-demo.ready .upload-demo-wrap {
+      display: block;
+  }
+  .cr-boundary, .cr-boundary img {
+      border-radius: 15px !important;
+  }
+  
+  .upload-demo-wrap {
+      width: min(100%, 300px);
+      height: 300px;
+      margin: 0 auto;
+  }
+  
+  .upload-msg {
+      text-align: center;
+      padding: 50px;
+      font-size: 22px;
+      color: #aaa;
+      width: 260px;
+      margin: 50px auto;
+      border: 1px solid #aaa;
+  }
+  </style>
+  
+  <div class="py-4"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+  <script>
+    
+      $(document).ready(function(){
+      var $uploadCrop;
+      function readFile(input) {
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+      
+          reader.onload = function (e) {
+              $('.upload-demo').addClass('ready');
+              $uploadCrop.croppie('bind', {
+                      url: e.target.result
+              }).then(function(){
+                      console.log('jQuery bind complete');
+              });
+          }
+          reader.readAsDataURL(input.files[0]);
+      }
+      else {
+              console.log("Sorry - you're browser doesn't support the FileReader API");
+          }
+      }
+      
+      $uploadCrop = $('#upload-demo').croppie({
+              viewport: {
+                      width: 280,
+                      height: 200,
+                      // type: 'circle'
+              },
+              enableExif: true
+      });
+      
+      $('#upload').on('change', function () { readFile(this); });
+      $('.upload-result').on('click', function (ev) {
+      $uploadCrop.croppie('result', {
+        type: 'canvas',
+        size: 'viewport'
+      }).then(function (resp) {
+          // in this hidden input we can send cropped image to server
+          $('#userprofile-avatar').val(resp);
+          $('#cropped-result img').attr('src',resp);
+          $('#cropImagePop').modal('hide');
+      });
+      });    
+      
+      });
+      
+      
+      function CarouselOnclickRemove() {
+        let imgBox = document.querySelector('#cropped-result')
+        imgBox.querySelector('img').src = default_img_profile
+        imgBox.querySelector('input').value = ""
+      }
+      </script>
+
+
+
+<!-- maps -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+<!-- end maps -->
+<script>
+function SelectLocation() {
+  $('#SelectLocationModal').modal('hide');
+}
+
+var map;
+var pin;
+var tilesURL='https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+var mapAttrib='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>';
+
+// add map container
+// $('body').prepend('<div id="map" style="height:70vh;width:100%;"></div>');
+
+let lat = 50.5
+let lng = 30.5
+// create map instance
+
+if (!(typeof map == "object")) {
+    map = L.map('map', {
+        center: [lat, lng],
+        zoom: 15
+    });
+} else {
+    map.setZoom(3).panTo([40,0]);
+}
+
+
+
+
+
+// create the tile layer with correct attribution
+L.tileLayer(tilesURL, {
+attribution: mapAttrib,
+maxZoom: 19
+}).addTo(map);
+
+map.on('click', function(ev) {
+  setMarker(ev.latlng)
+});
+
+function setMarker(latlng) {
+    $('#lat').val(latlng.lat);
+    $('#lng').val(latlng.lng);
+    if (typeof pin == "object") {
+        pin.setLatLng(latlng);
+      }
+      else {
+        pin = L.marker(latlng, { riseOnHover:true,draggable:true });
+        pin.addTo(map);
+        pin.on('drag',function(ev) {
+          $('#lat').val(ev.latlng.lat);
+          $('#lng').val(ev.latlng.lng);
+        });
+      }
+}
+
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else {
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+
+function showPosition(position) {
+    lat = position.coords.latitude
+    lng = position.coords.longitude
+
+    setMarker({lat:lat, lng:lng})
+    map.setView([lat, lng], 17, { animation: true });
+}
+
+</script>
+
+<style>
+  .map-container{
+    position: relative;
+    width: 300px;
+    height: 400px;
+  }
+  
+  .map-marker-centered{
+    background-image: url('https://img.icons8.com/color/48/000000/marker--v1.png') no-repeat;
+    width: 50px;
+    height: 60px;
+    position: absolute;
+    z-index: 20;
+    left: calc(50% - 25px);
+    top: calc(50% - 60px);
+    transition: all 0.4s ease;
+  }
+  </style>
+
+{% endblock %}

@@ -1,0 +1,761 @@
+{% extends 'messenger_base.html' %}
+{% load static %}
+{% load i18n %}
+{% load messenger_tags %}
+{% load custom_tags %}
+
+{% block links %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+{% endblock %}
+
+{% block sheri %}
+
+
+<div >
+    <div  id="main" style=" padding: 0; height: 100vh;">
+        <div  class="bg-primary text-white fixed-top" style="padding:10px 20px;  box-shadow: rgb(177, 177, 177) 0px 0px 3px; margin: auto;">
+            {% get_user_full_name receiver.id as receiver_full_name %}
+    
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center;">
+                    {% if profile_image.1 == 0 %}
+                        <img src="{{profile_image.0}}" alt="" style="width: 50px; border-radius: 100%;">
+                    {% else %}
+                    <img src="{% static '/img/default-profile-img-2.png' %}" alt="" style="width: 50px; border-radius: 100%;">
+                    {% endif %}
+                    <h5 style="margin-right: 10px;">{{receiver_full_name}}</h5>
+            
+                </div>
+    
+                <a id="MsgSettings" tabindex="0" role="button" data-bs-toggle="popover" title="الرسائل" class="btn btn-primary" style="font-size: 25px;"><i class="bi bi-three-dots-vertical"></i></a>
+            </div>
+        </div>
+    
+        <div id="msg-container-box">
+            <div id="msg-container-box2" style="padding-top: 100px;">
+                {% for messages in messages_list %}
+                <p style="padding: 25px 0px; display: block; margin: auto;text-align: center;">{{messages.0|date:'Y-m-d'}}</p>
+                {% for message in messages.1 %}
+                {% if message.sender == request.user %}
+                <div class="sender">
+                    <div class="btn btn-primary">
+                        {% if message.msg_type == '1' %}
+                        <p>{{message.msg}}</p>
+                        {% elif message.msg_type == '2' %}
+                        {% get_file_name message.file.name as file_name %}
+                        <div class="align-items-center">
+                            <i class="bi bi-file-earmark-fill fs-3"></i>
+                            <p class="ms-1 mb-0">{{file_name}}</p>
+                            <a href="{{message.file.url}}" target="_blank">
+                                <i class="bi bi-cloud-arrow-down-fill text-white fs-3 me-3"></i>
+                            </a>
+                        </div>
+                        {% elif message.msg_type == '4' %}
+                        <audio controls="" src="{{message.audio.url}}" ></audio>
+                        {% endif %}
+                        <span>{{message.creation_date|date:'H:i'}}</span>
+
+                        <i id="msg-status-{{message.id}}" class="bi {% if message.is_readed%}bi-check2-all{%else%}bi-check2{%endif%}"></i>
+
+                    </div>
+                </div>
+                {% else %}
+                <div class="receiver">
+                    <div class="btn btn-light">
+                        {% if message.msg_type == '1' %}
+                        <p class="">{{message.msg}}</p>
+                        {% elif message.msg_type == '2' %}
+                        {% get_file_name message.file.name as file_name %}
+                        <div class="align-items-center">
+                            <i class="bi bi-file-earmark-fill fs-3"></i>
+                            <p class="ms-1 mb-0">{{file_name}}</p>
+                            <a href="{{message.file.url}}" target="_blank">
+                                <i class="bi bi-cloud-arrow-down-fill fs-3 me-3"></i>
+                            </a>
+                        </div>
+                        {% elif message.msg_type == '4' %}
+                        <audio controls="" src="{{message.audio.url}}" ></audio>
+                        {% endif %}
+                        <span>{{message.creation_date|date:'H:i'}}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+
+                <div class="is-typing btn btn-light rounded-5">
+                    <div class="jump1"></div>
+                    <div class="jump2"></div>
+                    <div class="jump3"></div>
+                    <div class="jump4"></div>
+                    <div class="jump5"></div>
+                 </div>
+                <div class="sender-form-box fixed-bottom bg-primary">
+                    <div class="btn-group dropup">
+                        <button class="btn btn-dark me-1 rounded-circle add-attachment"  type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-link-45deg fs-5"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploadFormModal">أرفاق ملف</button></li>
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#SelectLocationModal">أرسال الموقع</a></li>
+                        </ul>
+                      </div>
+
+                    <button class="btn btn-dark me-1 rounded-circle stop-rec-btn" hidden type="button" onclick="stopRecording()">
+                        <i class="bi bi-stop-fill fs-5"></i>
+                    </button>
+
+                    <button class="btn btn-dark me-1 rounded-circle rec-btn" type="button" onclick="startRecording()">
+                        <i class="bi bi-mic-fill fs-5"></i>
+                    </button>
+                    <form id="recourd-form" hidden onsubmit="event.preventDefault();" style="display: contents;">
+                        <button class="btn btn-dark me-1 rounded-circle close-menu-btn" type="button" onclick="CloseMenu()">
+                            <i class="bi bi-x-lg fs-5"></i>
+                        </button>
+                        <div class="recourd-box w-100">
+                        </div>
+                        <button class="btn btn-dark send ms-1">
+                            <i class="bi bi-send-fill fs-5"></i>
+                        </button>
+                    </form>
+
+                    <form id="form" onsubmit="event.preventDefault();" style="display: contents;">
+
+                        <input type="text" class="form-control" oninput="send_is_typing()" placeholder="اكتب رسالة" id="senderMsg">
+
+        
+                        <button class="btn btn-dark send ms-1" type="submit">
+                            <i class="bi bi-send-fill fs-5"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>    
+    
+
+
+        </div>
+    
+        
+    </div>
+
+</div>
+
+
+  <!-- Modal Upload Files-->
+<div class="modal fade" id="uploadFormModal" tabindex="-1" aria-labelledby="uploadFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadFormModalLabel">رفع الملفات</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="wrapper">
+                    <!-- <header>File Uploader</header> -->
+                    <form action="UploadFiles" id="uploadForm">
+                        <input type="hidden" class="form-control" value="{{current_path}}" name="path">
+                        <input class="file-input" type="file" name="file" multiple hidden>
+                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                        <p>تصفح للرفع</p>
+                    </form>
+                    <section class="progress-area"></section>
+                    <section class="uploaded-area"></section>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">اغلاق</button>
+                <!-- <button type="submit" class="btn btn-primary">create</button> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Select Location-->
+<div class="modal fade" id="SelectLocationModal" tabindex="-1" aria-labelledby="SelectLocationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="SelectLocationModalLabel">رفع الملفات</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <button onclick="getLocation()" class="btn btn-primary mx-auto d-block">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    الحصول على الموقع الحالي
+                </button>
+
+                <p id="demo"></p>
+                <div id="map" style="height:70vh;width:100%;"></div>
+                <form>
+                    <div><input type="hidden" name="lat" id="lat"></div>
+                    <div><input type="hidden" name="lng" id="lng"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">اغلاق</button>
+                <button type="button" class="btn btn-primary" onclick="SendMsg('location')">ارسال الموقع</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div data-name="popover-content-msg-settings" id="popover-content-msg-settings" class="d-none" style="width: min(100%, 400px);">
+    <a href="#" class="btn btn-info " style="display: block; width: 100%;">عرض الملف الشخصي</a>
+    
+    {% if not is_favorite %}
+    <a href="{% url 'AddFavorite' receiver.id %}?redir=True" class="btn btn-warning mt-1" style="display: block; width: 100%;">اضافة الى مفضلة</a>
+    {% else %}
+    <a href="{% url 'DeleteFavorite' receiver.id %}?redir=True" class="btn btn-warning mt-1" style="display: block; width: 100%;">ازالة من المفضلة</a>
+    {% endif %}
+
+    {% if not is_blocked %}
+    <a href="{% url 'BlockUserMessenger' receiver.id %}?redir=True" class="btn btn-danger mt-1" style="display: block; width: 100%;">حظر</a>
+    {% else %}
+    <a href="{% url 'DeleteBlockUser' receiver.id %}?redir=True" class="btn btn-danger mt-1" style="display: block; width: 100%;">الغاء الحظر</a>
+    {% endif %}
+</div>
+
+
+
+<script src="{% static 'js/recorder.js' %}"></script>
+
+<script type='text/javascript'>
+// recourd audio
+URL = window.URL || window.webkitURL;
+
+var gumStream; 						//stream from getUserMedia()
+var rec; 							//Recorder.js object
+var input; 							//MediaStreamAudioSourceNode we'll be recording
+
+// shim for AudioContext when it's not avb. 
+var AudioContext = window.AudioContext || window.webkitAudioContext;
+var audioContext //audio context to help us record
+
+const msgInput = document.querySelector('#senderMsg')
+
+const msgForm = document.querySelector('#form')
+const RecForm = document.querySelector('#recourd-form')
+const recBtn = document.querySelector('.rec-btn')
+const stopRecBtn = document.querySelector('.stop-rec-btn')
+const closeMenuBtn = document.querySelector('.close-menu-btn')
+
+
+function startRecording() {
+	console.log("recordButton clicked");    
+    var constraints = { audio: true, video:false }
+ 	/*
+    	Disable the record button until we get a success or fail from getUserMedia() 
+	*/
+
+    msgForm.hidden = true
+    RecForm.hidden = false
+    recBtn.hidden = true
+    stopRecBtn.hidden = false
+    
+
+	/*
+    	We're using the standard promise based getUserMedia() 
+    	https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+	*/
+
+	navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+		console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
+
+		/*
+			create an audio context after getUserMedia is called
+			sampleRate might change after getUserMedia is called, like it does on macOS when recording through AirPods
+			the sampleRate defaults to the one set in your OS for your playback device
+
+		*/
+		audioContext = new AudioContext();
+
+		//update the format 
+		// document.getElementById("formats").innerHTML="Format: 1 channel pcm @ "+audioContext.sampleRate/1000+"kHz"
+
+		/*  assign to gumStream for later use  */
+		gumStream = stream;
+		
+		/* use the stream */
+		input = audioContext.createMediaStreamSource(stream);
+
+		/* 
+			Create the Recorder object and configure to record mono sound (1 channel)
+			Recording 2 channels  will double the file size
+		*/
+		rec = new Recorder(input,{numChannels:1})
+
+		//start the recording process
+		rec.record()
+
+		console.log("Recording started");
+
+	}).catch(function(err) {
+        console.log(err)
+	  	//enable the record button if getUserMedia() fails
+        msgForm.hidden = false
+        RecForm.hidden = true
+        recBtn.hidden = false
+        stopRecBtn.hidden = true
+	});
+}
+
+function stopRecording() {
+	console.log("stopButton clicked");
+    //tell the recorder to stop the recording
+    if (rec.recording) {
+        rec.stop();
+        recBtn.hidden = false
+        stopRecBtn.hidden = true
+        //stop microphone access
+        gumStream.getAudioTracks()[0].stop();
+        //create the wav blob and pass it on to createDownloadLink
+        rec.exportWAV(createDownloadLink);
+    }
+}
+
+function CloseMenu() {
+    if (rec.recording) {
+        rec.stop();
+    }
+    msgForm.hidden = false
+    msgInput.hidden = false
+    RecForm.hidden = true
+    recBtn.hidden = false
+    stopRecBtn.hidden = true
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, _) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+
+function createDownloadLink(blob) {
+    // blobToBase64(blob).then((result) => {
+    //     console.log(result)
+    // })
+
+	
+	var url = URL.createObjectURL(blob);
+	var au = document.createElement('audio');
+    au.style.width = '100%'
+
+	//name of .wav file to use during upload and download (without extendion)
+	var filename = new Date().toISOString();
+
+	//add controls to the <audio> element
+	au.controls = true;
+	au.src = url;
+    
+    let recBox = document.querySelectorAll('.recourd-box audio').forEach(el => {
+        el.remove()
+    })
+	//add the li element to the ol
+	document.querySelector('.recourd-box').appendChild(au);
+    msgInput.hidden = true
+}
+            
+    $(document).ready(function() {
+        
+
+        var optionsMsgSettings = {
+            sanitize: false,
+            html: true,
+            title: "خيارات",
+            customClass: 'MessagesPopover',
+            //html element
+            //content: $("#popover-content")
+            content: $('[data-name="popover-content-msg-settings"]').html(),
+            //Doing below won't work. Shows title only
+            //content: $("#popover-content").html()
+            fallbackPlacements : ['right', 'left']
+        }
+
+
+
+
+        var exampleElMsgSettings = document.getElementById('MsgSettings')
+        var popover = new bootstrap.Popover(exampleElMsgSettings, optionsMsgSettings)
+
+
+    })
+
+    // $(function () {
+    //         $('[data-bs-toggle="popover"]').popover()
+    //     })
+</script>
+
+
+
+{% get_ws_type 1 as ws_type %}
+
+<script>
+
+    const SendUploadURL = "{% url 'MessagerSendFiles' room_id %}"
+
+    function scrollToBottom(){
+        let msgBox = document.querySelector('#msg-container-box2')
+        window.scrollTo(0, msgBox.scrollHeight);
+    }
+
+
+scrollToBottom()
+  window.addEventListener("load",send_text);
+  function send_text() { 
+    document.getElementById("form").addEventListener("submit",function(e) {
+      e.preventDefault();
+      SendMsg('text')
+    });
+  }
+
+  window.addEventListener("load",send_audio);
+  function send_audio() { 
+    document.getElementById("recourd-form").addEventListener("submit",function(e) {
+      e.preventDefault();
+      SendMsg('audio')
+    });
+  }
+
+
+    let url = `{{ws_type}}://${window.location.host}/ws/messanger/{{room_id}}/`
+    const chatSocket = new WebSocket(url)
+    function send(query){
+        chatSocket.send(
+            JSON.stringify(query)
+        )
+    }
+
+    chatSocket.onmessage = function(e){
+        let data = JSON.parse(e.data)
+        console.log(data)
+        console.log(data.user_id, user_id)
+        if (data.user_id != user_id) {
+            if (data.method == 'send_msg') {
+
+                if (!data.receiver_subscription_passed) {
+                    data.message = data.receiver_subscription_end_msg
+                    showToast(data.toastID, 'النظام', data.receiver_subscription_end_msg, '')
+                }
+                let msg_obj = document.querySelector(`.is-typing`)
+                msg_obj.classList.remove('show-el')
+                ReceiveMsg(data);
+                
+                send({
+                    'method': 'msg_readed',
+                    'msg_id':data.msg_id
+                });
+            }
+
+
+            else if (data.method == 'msg_readed') {
+                let msg_obj = document.querySelector(`#msg-status-${data.msg_id}`)
+                msg_obj.classList.remove('bi-check2')
+                msg_obj.classList.add('bi-check2-all')
+            }
+
+            else if (data.method == 'typing') {
+                let msg_obj = document.querySelector(`.is-typing`)
+                if (!msg_obj.classList.contains('show-el')) {
+                    msg_obj.classList.add('show-el')
+
+                    setTimeout(function() { 
+                    msg_obj.classList.remove('show-el')
+                    }, 5800);
+                }
+
+            }
+
+
+            else if (data.method == 'msg_read_all') {
+                let msg_objs = document.querySelectorAll(`.sender i`)
+                msg_objs.forEach(msg_obj => {
+                    if (!msg_obj.classList.contains('bi-check2-all')) {
+                        msg_obj.classList.remove('bi-check2')
+                        msg_obj.classList.add('bi-check2-all')
+                    
+                    }
+                })
+
+            }
+        }
+
+        else if (data.user_id == user_id) {
+            if (data.method == 'send_msg') {
+                let msgBox = document.querySelector('#msg-container-box2')
+                if (data.msg_type == 'text') {
+                    let msg_html = `
+                        <div class="sender" >
+                            <div class="btn btn-primary">
+                                <p>${data.message}</p>
+                                <span>${data.creation_date}</span>
+                                <i id="msg-status-${data.msg_id}" class="bi bi-check2"></i>
+                            </div>
+                        </div>
+                    `
+                    msgBox.insertAdjacentHTML('beforeend', msg_html)
+                    scrollToBottom()
+                } else if (data.msg_type == 'audio') {
+                    let msg_html = `
+                        <div class="sender" >
+                            <div class="btn btn-primary">
+                                <audio controls="" src="${data.audio_url}" ></audio>
+                                <span>${data.creation_date}</span>
+                                <i id="msg-status-${data.msg_id}" class="bi bi-check2"></i>
+                            </div>
+                        </div>
+                    `
+                    msgBox.insertAdjacentHTML('beforeend', msg_html)
+                    scrollToBottom()
+                } else if (data.msg_type == 'file') {
+                    let msg_html = `
+                        <div class="sender" >
+                            <div class="btn btn-primary">
+                                <div class="align-items-center">
+                                    <i class="bi bi-file-earmark-fill fs-3"></i>
+                                    <p class="ms-1 mb-0">${data.file_name}</p>
+                                    <a href="${data.file_url}" target="_blank">
+                                        <i class="bi bi-cloud-arrow-down-fill text-white fs-3 me-3"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                    msgBox.insertAdjacentHTML('beforeend', msg_html)
+                    scrollToBottom()
+                }
+                
+            } else if (data.method == 'subscription'){
+                console.log(data.method == 'subscription')
+                
+                showToast(data.toastID, 'النظام', data.msg, '')
+            }
+
+
+        }
+    }
+
+
+    function SendMsg(msg_type){
+
+        if (msg_type == 'text') {
+
+            if (!msgInput.value) {return false}
+            send({
+                    'method': 'send_msg',
+                    'msg_type': msg_type,
+                    'message': msgInput.value
+                })
+            msgInput.value = ""
+
+        } else if (msg_type == 'audio') {
+            if (rec.recording) {
+                stopRecording()
+            } else {
+                let rec_audio = document.querySelector('.recourd-box audio')
+                if (rec_audio) {
+                    
+                    fetch(rec_audio.src)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        blobToBase64(blob).then((blobBase64) => {
+                            send({
+                                    'method': 'send_msg',
+                                    'msg_type': msg_type,
+                                    'message': blobBase64.split(',')[1]
+                                })
+                            msgForm.hidden = false
+                            RecForm.hidden = true
+                            recBtn.hidden = false
+                            stopRecBtn.hidden = true
+                            msgInput.hidden = false
+                        })
+                    });
+                }
+            }
+
+        } else if (msg_type == 'location') {
+            send({
+                    'method': 'send_msg',
+                    'msg_type': msg_type,
+                    'message': `${$('#lat').val()}:${$('#lng').val()}`
+                })
+                $('#SelectLocationModal').modal('hide');
+        }
+    }
+
+
+    function ReceiveMsg(data) {
+        let msgBox = document.querySelector('#msg-container-box2')
+
+        if (data.msg_type == 'text') {
+            let msg_html = `
+                    <div class="receiver">
+                        <div class="btn btn-light">
+                            <p>${data.message}</p>
+                            <span>${data.creation_date}</span>
+                        </div>
+                    </div>
+            `
+            msgBox.insertAdjacentHTML('beforeend', msg_html)
+            scrollToBottom()
+        } else if (data.msg_type == 'audio') {
+            let msg_html = `
+                    <div class="receiver">
+                        <div class="btn btn-light">
+                            <audio controls="" src="${data.audio_url}" ></audio>
+                            <span>${data.creation_date}</span>
+                        </div>
+                    </div>
+            `
+            msgBox.insertAdjacentHTML('beforeend', msg_html)
+            scrollToBottom()
+        } else if (data.msg_type == 'file') {
+            let msg_html = `
+                    <div class="receiver">
+                        <div class="btn btn-light">
+                            <div class="align-items-center">
+                                <i class="bi bi-file-earmark-fill fs-3"></i>
+                                <p class="ms-1 mb-0">${data.file_name}</p>
+                                <a href="${data.file_url}" target="_blank">
+                                    <i class="bi bi-cloud-arrow-down-fill fs-3 me-3"></i>
+                                </a>
+                            </div>
+                            <span>${data.creation_date}</span>
+                        </div>
+                    </div>
+            `
+            msgBox.insertAdjacentHTML('beforeend', msg_html)
+            scrollToBottom()
+        }
+
+    }
+
+
+
+
+    function send_is_typing(){
+        send({
+            'type': 'typing',
+            'method':'typing',
+        })
+    }
+
+
+
+
+
+</script>
+
+<!-- maps -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+<!-- end maps -->
+<script>
+var map;
+var pin;
+var tilesURL='https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+var mapAttrib='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>';
+
+// add map container
+// $('body').prepend('<div id="map" style="height:70vh;width:100%;"></div>');
+
+let lat = 50.5
+let lng = 30.5
+// create map instance
+
+if (!(typeof map == "object")) {
+    map = L.map('map', {
+        center: [lat, lng],
+        zoom: 15
+    });
+} else {
+    map.setZoom(3).panTo([40,0]);
+}
+
+
+
+
+
+// create the tile layer with correct attribution
+L.tileLayer(tilesURL, {
+attribution: mapAttrib,
+maxZoom: 19
+}).addTo(map);
+
+map.on('click', function(ev) {
+  setMarker(ev.latlng)
+});
+
+function setMarker(latlng) {
+    $('#lat').val(latlng.lat);
+    $('#lng').val(latlng.lng);
+    if (typeof pin == "object") {
+        pin.setLatLng(latlng);
+
+      }
+      else {
+        pin = L.marker(latlng, { riseOnHover:true,draggable:true });
+        pin.addTo(map);
+        pin.on('drag',function(ev) {
+          $('#lat').val(ev.latlng.lat);
+          $('#lng').val(ev.latlng.lng);
+        });
+      }
+}
+
+const x = document.getElementById("demo");
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else {
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+
+function showPosition(position) {
+    lat = position.coords.latitude
+    lng = position.coords.longitude
+
+    setMarker({lat:lat, lng:lng})
+    map.setView([lat, lng], 17, { animation: true });
+
+    x.innerHTML = "Latitude: " + position.coords.latitude +
+    "<br>Longitude: " + position.coords.longitude;
+}
+
+</script>
+
+
+<style>
+.map-container{
+  position: relative;
+  width: 300px;
+  height: 400px;
+}
+
+.map-marker-centered{
+  background-image: url('https://img.icons8.com/color/48/000000/marker--v1.png') no-repeat;
+  width: 50px;
+  height: 60px;
+  position: absolute;
+  z-index: 20;
+  left: calc(50% - 25px);
+  top: calc(50% - 60px);
+  transition: all 0.4s ease;
+}
+</style>
+{% endblock sheri %}

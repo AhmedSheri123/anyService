@@ -1,0 +1,44 @@
+{% extends "customer_base.html" %}
+
+{% block sheri %}
+
+
+<div class="container px-4 px-md-5 py-3">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">الخدمات</h1>
+
+    </div>
+
+    <main class="d-md-flex">
+        <div style="width: 250px;" class="pe-md-3 w-md-100 mb-3" >
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">بحث عن خدمة</label>
+                <input type="text" placeholder="اكتب هنا..." name="search" class="form-control" id="search-bar" aria-describedby="emailHelp">
+                <div id="emailHelp" class="form-text">هنا يمكنك البحث عن خدماتك للسهولة الوصول</div>
+            </div>
+            <button type="submit" class="btn btn-dark d-block mx-auto">بحث</button>
+        </div>
+        <div class="w-100">
+            <div class="d-flex flex-row mb-3 justify-content-center justify-content-md-start flex-wrap">
+                {% for categorsy in '222222' %}
+                {% for category in categorys %}
+                <div class="me-2 mb-2">
+                    <a href="{% url 'set_geo_location_redir_to_categorys' category.id %}" class=" shadow-sm position-relative">
+                      <img src="{{category.image.url}}" style="filter: brightness(.5); max-width: 300px;" class="mxw-es-100 rounded">
+                      <p class="position-absolute top-50 start-50 translate-middle text-white fw-bold fs-5">{{category.name}}</p>
+                    </a>
+                  </div>
+
+                  {% endfor %}
+                  {% endfor %}
+
+            </div>
+            {% if not categorys %}
+            <p class="text-center mt-5 pt-5">لا يوجد خدماتك حالياََ</p>
+            {% endif %}           
+        </div>
+
+
+    </main>
+</div>
+{% endblock %}

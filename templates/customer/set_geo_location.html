@@ -1,0 +1,33 @@
+{% extends "customer_base.html" %}
+
+{% block sheri %}
+<div class="position-relative w-100" style="height: 100vh;">
+    <div class="position-absolute top-50 start-50 translate-middle d-flex flex-column align-items-center">
+        <div class="spinner-border text-primary mb-2" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p id="result" class="text-center">يرجى تفعيل خدمة gps وسماح المتصفح على الوصول الى موقعك الحالي</p>
+    </div>
+</div>
+
+<script>
+    let x = $('#result')
+    function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+    }
+
+    function showPosition(position) {
+        lat = position.coords.latitude
+        lng = position.coords.longitude
+        let url = `{% url 'Services' category_id %}?lat=${lat}&lng=${lng}`
+        window.location.replace(url);
+
+    }
+
+    getLocation()
+</script>
+{% endblock sheri %}

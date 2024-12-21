@@ -1,0 +1,123 @@
+{% extends "practitioner_base.html" %}
+{% load static %}
+{% block sheri %}
+
+
+ <!-- Contact -->
+ <div class="px-3 my-5">
+    <div class="container py-3 border rounded shadow-lg" style="max-width: 568px;">
+        <form class="p-4 p-sm-5" method='post'>
+            {% csrf_token %}
+            <div class="text-center">
+                {% comment %} <img width="130" src="{% static 'img/softmsg-logo.png' %}" alt="" class="mb-2"> {% endcomment %}
+                
+                <h1 class="mb-3 text-dark">أي مهنة</h1>
+                <h3 class="mb-3 text-primary">عملية إنشاء الحساب</h3>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2">
+                <div class="mb-3 col">
+                    <label for="exampleFormControlInput1" class="form-label">
+                        اسم الاول
+                    </label>
+                    {{user_form.first_name}}
+                </div>
+                <div class="mb-3 col">
+                    <label for="exampleFormControlInput1" class="form-label">
+                        اسم الاخير
+                    </label>
+                    {{user_form.last_name}}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-envelope"></i>
+                    البريد الالكتروني
+                </label>
+                {{user_form.email}}
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-venus-mars"></i>
+                    الجنس
+                </label>
+                {{userprofile_form.gender}}
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-cake-candles"></i>
+                    تاريخ الميلاد
+                </label>
+                {{userprofile_form.birthdate}}
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-phone"></i>
+                    رقم الجوال
+                </label>
+                <div class="input-group" dir="ltr">
+                    <span class="input-group-text rounded-5" id="basic-addon1">+966</span>
+
+                    {{userprofile_form.phone_number}}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-building"></i>
+                    المدينة
+                </label>
+                {{userprofile_form.city}}
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-building"></i>
+                    العنوان كاملاََ
+                </label>
+                {{userprofile_form.address}}
+            </div>
+            <hr>
+            <h3 class="mb-3 mt-5 text-primary ">التخصص والخبرة</h3>
+
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-hand-sparkles"></i>
+                    التخصص
+                </label>
+                {{practitioner_userprofile_form.specialty}}
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-hourglass-end"></i>
+                    سنوات الخبرة
+                </label>
+                {{practitioner_userprofile_form.specialty_years_of_experience}}
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-address-card"></i>
+                    نبذة مختصرة عنك
+                </label>
+                {{practitioner_userprofile_form.description}}
+            </div>
+
+
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-key"></i>
+                    كلمة المرور
+                </label>
+                {{user_form.password}}
+            </div>
+
+
+            <button class="btn btn-dark mx-auto d-block">
+                <i class="fa-solid fa-user"></i>
+                انشاء
+            </button>
+        </form>
+    </div>
+</div>
+ <!-- End Contact -->
+
+{% endblock sheri %}

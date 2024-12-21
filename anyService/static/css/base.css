@@ -1,0 +1,16 @@
+.bg-white {
+  background-color: #fff;
+}
+
+@media (max-width:768px) {
+    .w-md-100 {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 300px) {
+    .mxw-es-100 {
+      max-width: 100% !important;
+    }
+  }
+

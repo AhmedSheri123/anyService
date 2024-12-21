@@ -1,0 +1,236 @@
+{% extends "customer_base.html" %}
+{% load customer_tags %}
+{% load static %}
+{% block sheri %}
+
+
+<div class="container px-4 px-md-5 py-3">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">{{service.name}}</h1>
+    </div>
+
+    <main class="d-md-flex">
+        <div class="row g-5">
+          <div class="col-md-7 col-lg-8 p-3">
+            <img src="{{service.img_base64}}" alt="" class="mb-3 rounded mx-auto d-block">
+            <p>{{service.description}}</p>
+          </div>
+          <div class="col-md-5 col-lg-4">
+            <h2 class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-primary">معلومات الخدمة</span>
+            </h2>
+
+            <ul class="list-group mb-3">
+              <li class="list-group-item d-flex justify-content-between lh-sm">
+                <div>
+                  <h6 class="my-0">التقيمات</h6>
+                </div>
+                <div class="btn-group small">
+                  <div>
+                    <svg style="display:none;">
+                      <defs>
+                        <symbol id="fivestars">
+                          <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd"/>
+                          <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(24)"/>
+                          <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(48)"/>
+                          <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(72)"/>
+                          <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd"  transform="translate(96)"/>
+                        </symbol>
+                      </defs>
+                    </svg>
+                    <div class="rating">
+                      <progress class="rating-bg" value="{{service.get_rating_range}}" max="5"></progress>
+                      <svg><use xlink:href="#fivestars"/></svg>
+                    </div>
+                  </div>
+                  {% get_service_review service.id as service_reviews %}
+                  <p class="ms-1 mb-1">({{service_reviews.count}})</p>
+
+                  </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between lh-sm">
+                <div>
+                  <h6 class="my-0">عدد الطلبات</h6>
+                </div>
+                <span class="text-body-secondary">{{service.get_requests.count}}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between lh-sm">
+                <div>
+                  <h6 class="my-0">الفئة</h6>
+                </div>
+                <span class="text-body-secondary">{{service.category.name}}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between lh-sm">
+                <div>
+                  <h6 class="my-0">المدة</h6>
+                </div>
+                <span class="text-body-secondary">{{service.duration}}</span>
+              </li>
+              <!-- <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
+                <div class="text-success">
+                  <h6 class="my-0">Promo code</h6>
+                  <small>EXAMPLECODE</small>
+                </div>
+                <span class="text-success">−$5</span>
+              </li> -->
+              <li class="list-group-item d-flex justify-content-between">
+                <span>السعر</span>
+                <strong>{{service.price}}</strong>
+              </li>
+            </ul>
+          <a href="{% url 'CustomerRequestService' service.id %}" class="mb-5 btn btn-lg rounded-3 btn-success mx-auto d-block">
+            <i class="fa-solid fa-code-pull-request"></i>
+            طلب الخدمة</a>
+
+          <h2 class="text-primary mb-3">صاحب الخدمة</h2>
+          <h4 class="d-flex justify-content-between align-items-center mb-2">
+            <a href="{% url 'PVProfile' service.provider.id %}" class="text-body-secondary d-flex">
+              <div class="text-center me-2">
+                {% if service.provider.userprofile.profile_img_base64 %}
+                <div id="cropped-result">
+                  <div class="carousel-item-content position-relative d-inline-block rounded-circle overflow-hidden" id="cropped-result">
+                    <img src="{{service.provider.userprofile.profile_img_base64}}" width="40" alt="..." data-bs-toggle="modal" data-bs-target="#cropImagePop">
+                    <input type="hidden" value="{{service.provider.userprofile.profile_img_base64}}" id="userprofile-avatar" name="profile_img" class="form-control" >
+                    <i class="bi bi-trash-fill position-absolute fixed-bottom bg-dark text-light" role="button" onclick="CarouselOnclickRemove()"></i>
+                  </div>
+                </div>
+                {% else %}
+                <div id="cropped-result">
+                  <img src="{% static 'img/profile_default/default-profile-img-2.png' %}" class="d-inline-block rounded-circle mx-auto" width="40" data-bs-toggle="modal" data-bs-target="#cropImagePop">
+                  <input type="hidden" id="userprofile-avatar" name="profile_img" class="form-control" >
+                </div>
+                {% endif %}
+            </div>
+              
+              {{service.provider.userprofile.get_full_name}}</a>
+
+              <a href="{% url 'PVProfile' service.provider.id %}" type="button" class="btn btn-sm btn-outline-primary">
+                <i class="fa-solid fa-user"></i>
+                ملف الشخصي</a>
+          </h4>
+          <ul class="list-group mb-3">
+
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div>
+                <h6 class="my-0">اختصاص</h6>
+              </div>
+              <span class="text-body-secondary">{{service.provider.userprofile.practitioner_profile.specialty}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div>
+                <h6 class="my-0">عدد الخدمات</h6>
+              </div>
+              <span class="text-body-secondary">{{service.get_user_services.count}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div>
+                <h6 class="my-0">بريد</h6>
+              </div>
+              <span class="text-body-secondary">{{service.provider.email}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div>
+                <h6 class="my-0">جوال</h6>
+              </div>
+              <span class="text-body-secondary">{{service.provider.userprofile.phone_number}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div>
+                <h6 class="my-0">المدينة</h6>
+              </div>
+              <span class="text-body-secondary">{{service.provider.userprofile.get_city_display}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div>
+                <h6 class="my-0">العنوان</h6>
+              </div>
+              <span class="text-body-secondary">{{service.provider.userprofile.address}}</span>
+            </li>
+  
+          </ul>
+          </div>
+
+
+
+          <div class="w-100">
+            <div class="my-3 p-3 bg-body rounded shadow-sm">
+              <h6 class="border-bottom pb-2 mb-0">جميع التقيمات</h6>
+              {% for review in reviews %}
+              <div class="d-flex text-body-secondary pt-3">
+                <img src="{{review.reviewer.profile_img_base64}}" class="bd-placeholder-img flex-shrink-0 me-2 rounded-circle" width="32" height="32">
+                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                        <strong class="text-gray-dark">{{review.reviewer.get_full_name}}</strong>
+                      <p>{{review.service_request.when_updated}}</p>
+                    </div>
+  
+                    <div class="text-end">
+                      
+                      <div class="my-2 text-nowrap">
+                        {% for i in review.create_rating_range %}
+                          {% if i %}
+                          <i class="fa-solid fa-star"></i>
+                          {% else %}
+                          <i class="fa-regular fa-star"></i>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+
+                    </div>
+                  </div>
+                  <p>{{review.comment}}</p>
+
+                </div>
+              </div>
+              {% empty %}
+              <p class="text-center mt-5">لا يوجد تقيمات حالياََ</p>  
+              {% endfor %}
+  
+            
+            </div>
+      
+          </div>
+        </div>
+
+    </main>
+</div>
+
+
+<style>
+  
+  .rating {
+    width: 120px;
+    height: 24px;
+    position: relative;
+    background-color: gray;
+  }
+  
+  .rating progress.rating-bg {
+    -webkit-appearance: none;
+    -moz-appearence: none;
+    appearance: none;
+    border: none;
+    display: inline-block;
+    height: 24px;
+    width: 100%;
+    color: orange;
+  }
+  
+  .rating progress.rating-bg::-webkit-progress-value {
+    background-color: orange;
+  }
+  
+  .rating progress.rating-bg::-moz-progress-bar {
+    background-color: orange;
+  }
+  
+  .rating svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  </style>
+{% endblock %}

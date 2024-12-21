@@ -1,0 +1,286 @@
+{% load static %}
+{% if user.is_authenticated %}
+{% if 'messageRoom' not in request.path %}
+
+{% if request.user.userprofile.profile_type == '3' %}
+
+<nav class="navbar navbar-expand-lg fixed-bottom glass-eff" style="padding: 4px;" id="navbar" data-bs-theme="dark" dir="rtl">
+  <div class="container-fluid">
+    
+
+    <div class=" navbar-collapse" id="navbarSupportedContent2">
+      <ul class="navbar-nav me-auto mb-lg-0" style="margin: auto; width: min(100%, 768px); justify-content: space-around; flex-direction: row;">
+        <li class="nav-item">
+              <a href="{% url 'practitioner_index' %}" class="btn" role="button">
+                  <i class="fa-solid fa-house"></i>
+              </a>
+        </li>
+
+
+        <li class="nav-item">
+              <a href="{% url 'MyService' %}" class="btn" role="button">
+                  <i class="fa-solid fa-briefcase"></i>
+              </a>
+        </li>          
+        <li class="nav-item">
+              <a href="{% url 'MyServiceRequest' %}" class="btn" role="button">
+                  <i class="fa-solid fa-code-pull-request"></i>
+              </a>
+        </li>
+        <!-- <li class="nav-item">
+              <a style="position: relative;" id="example" tabindex="0" class="btn" role="button" data-bs-toggle="popover" title="الرسائل" >
+                <span id="msg-main-badge" class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-danger">{{count_of_not_readed_msg}}</span>
+                <i class="fa-solid fa-comment"></i>
+              </a>
+        </li> -->
+        <li class="nav-item">
+              <a id="noti" tabindex="0" class="btn" role="button" data-bs-toggle="popover" title="الاشعارات" >
+                  <i class="fa-solid fa-bell"></i>
+              </a>
+        </li>
+
+        <li>
+          <div class="dropdown dropup">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if request.user.userprofile.profile_img_base64 %}
+              <img src="{{request.user.userprofile.profile_img_base64}}" alt="" width="32" height="32" class="rounded-circle me-2">
+            {% else %}
+              <img src="{% static 'img/profile_default/default-profile-img-2.png' %}" alt="" width="32" height="32" class="rounded-circle me-2">
+            {% endif %}
+          </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow position-absolute">
+              <li><a class="dropdown-item" href="{% url 'AddService' %}">اضافة خدمة</a></li>
+              <li><a class="dropdown-item" href="{% url 'PVProfile' request.user.id %}">ملف الشخصي</a></li>
+              <li><a class="dropdown-item" href="#">الاعدادات</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'PractitionerLogout' %}">تسجيل الخروج</a></li>
+            </ul>
+          </div>
+        </li>
+
+
+      </ul>
+
+
+    </div>
+  </div>
+</nav>
+
+<div data-name="popover-content" id="popover-content" class="d-none" style="width: min(100%, 400px);">
+{% comment %} {% include 'messenger/viewMessages.html' %} {% endcomment %}
+</div>
+
+<div data-name="popover-content-noti" id="popover-content-noti" class="d-none" style="width: min(100%, 400px);">
+{% comment %} {% include 'notifications/viewNotifications.html' %} {% endcomment %}
+</div>
+
+
+<script type='text/javascript'>
+  
+          
+  $(document).ready(function() {
+      
+    var options = {
+          sanitize: false,
+          html: true,
+          title: "الرسائل",
+          customClass: 'MessagesPopover',
+          //html element
+          //content: $("#popover-content")
+          content: $('[data-name="popover-content"]').html(),
+          //Doing below won't work. Shows title only
+          //content: $("#popover-content").html()
+          fallbackPlacements : ['top']
+      }
+
+
+      var optionsNoti = {
+          sanitize: false,
+          html: true,
+          title: "الاشعارات",
+          customClass: 'MessagesPopover',
+          //html element
+          //content: $("#popover-content")
+          content: $('[data-name="popover-content-noti"]').html(),
+          //Doing below won't work. Shows title only
+          //content: $("#popover-content").html()
+          fallbackPlacements : ['top']
+      }
+
+
+
+      var exampleEl = document.getElementById('example')
+      var popover = new bootstrap.Popover(exampleEl, options)
+
+      var exampleElnoti = document.getElementById('noti')
+      var popover = new bootstrap.Popover(exampleElnoti, optionsNoti)
+
+
+  })
+
+  // $(function () {
+  //         $('[data-bs-toggle="popover"]').popover()
+  //     })
+</script>
+
+
+{% else %}
+
+
+<nav class="navbar navbar-expand-lg fixed-bottom glass-eff" style="padding: 4px;" id="navbar" data-bs-theme="dark" dir="rtl">
+  <div class="container-fluid">
+    
+
+    <div class=" navbar-collapse" id="navbarSupportedContent2">
+      <ul class="navbar-nav me-auto mb-lg-0" style="margin: auto; width: min(100%, 768px); justify-content: space-around; flex-direction: row;">
+        <li class="nav-item">
+              <a href="{% url 'practitioner_index' %}" class="btn" role="button">
+                  <i class="fa-solid fa-house"></i>
+              </a>
+        </li>
+
+
+        <li class="nav-item">
+              <a href="{% url 'Categorys' %}" class="btn" role="button">
+                  <i class="fa-solid fa-briefcase"></i>
+              </a>
+        </li>          
+        <li class="nav-item">
+              <a href="{% url 'CustomerServiceRequest' %}" class="btn" role="button">
+                  <i class="fa-solid fa-code-pull-request"></i>
+              </a>
+        </li>
+        <!-- <li class="nav-item">
+              <a style="position: relative;" id="example" tabindex="0" class="btn" role="button" data-bs-toggle="popover" title="الرسائل" >
+                <span id="msg-main-badge" class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-danger">{{count_of_not_readed_msg}}</span>
+                <i class="fa-solid fa-comment"></i>
+              </a>
+        </li> -->
+        <li class="nav-item">
+              <a id="noti" tabindex="0" class="btn" role="button" data-bs-toggle="popover" title="الاشعارات" >
+                  <i class="fa-solid fa-bell"></i>
+              </a>
+        </li>
+
+        <li >
+          <div class="dropdown dropup">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if request.user.userprofile.profile_img_base64 %}
+              <img src="{{request.user.userprofile.profile_img_base64}}" alt="" width="32" height="32" class="rounded-circle me-2">
+            {% else %}
+              <img src="{% static 'img/profile_default/default-profile-img-2.png' %}" alt="" width="32" height="32" class="rounded-circle me-2">
+            {% endif %}
+          </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow position-absolute">
+              <li><a class="dropdown-item" href="{% url 'Categorys' %}">الخدمات</a></li>
+              <li><a class="dropdown-item" href="{% url 'CustomerProfile' %}">ملف الشخصي</a></li>
+              <li><a class="dropdown-item" href="#">الاعدادات</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'CustomerLogout' %}">تسجيل الخروج</a></li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+
+
+    </div>
+  </div>
+</nav>
+
+<div data-name="popover-content" id="popover-content" class="d-none" style="width: min(100%, 400px);">
+{% comment %} {% include 'messenger/viewMessages.html' %} {% endcomment %}
+</div>
+
+<div data-name="popover-content-noti" id="popover-content-noti" class="d-none" style="width: min(100%, 400px);">
+{% comment %} {% include 'notifications/viewNotifications.html' %} {% endcomment %}
+</div>
+
+
+<script type='text/javascript'>
+  
+          
+  $(document).ready(function() {
+      
+    var options = {
+          sanitize: false,
+          html: true,
+          title: "الرسائل",
+          customClass: 'MessagesPopover',
+          //html element
+          //content: $("#popover-content")
+          content: $('[data-name="popover-content"]').html(),
+          //Doing below won't work. Shows title only
+          //content: $("#popover-content").html()
+          fallbackPlacements : ['top']
+      }
+
+
+      var optionsNoti = {
+          sanitize: false,
+          html: true,
+          title: "الاشعارات",
+          customClass: 'MessagesPopover',
+          //html element
+          //content: $("#popover-content")
+          content: $('[data-name="popover-content-noti"]').html(),
+          //Doing below won't work. Shows title only
+          //content: $("#popover-content").html()
+          fallbackPlacements : ['top']
+      }
+
+
+
+      var exampleEl = document.getElementById('example')
+      var popover = new bootstrap.Popover(exampleEl, options)
+
+      var exampleElnoti = document.getElementById('noti')
+      var popover = new bootstrap.Popover(exampleElnoti, optionsNoti)
+
+
+  })
+
+  // $(function () {
+  //         $('[data-bs-toggle="popover"]').popover()
+  //     })
+</script>
+
+{% endif %}
+<style>
+  .navbar {
+    border: unset;
+  }
+  
+  #navbarSupportedContent2 i {
+    font-size: 22px;
+    text-shadow: #3b3b3b94 1px 2px 5px;
+  }
+  
+  .glass-eff {
+    /* From https://css.glass */
+  background: #2d2d2dce;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  /* border-bottom: 1px solid rgba(0, 0, 0, 0.126); */
+  transition: all .2s linear;
+  }
+  
+  
+  .MessagesPopover {
+  --bs-popover-max-width: min(100%, 400px);
+  
+  /* --bs-popover-border-color: var(--bd-violet-bg);
+  --bs-popover-header-bg: var(--bd-violet-bg);
+  --bs-popover-header-color: var(--bs-white);
+  --bs-popover-body-padding-x: 1rem;
+  --bs-popover-body-padding-y: .5rem; */
+  }
+  
+  .popover-body {padding-left:0px;}
+  .popover-header {text-align: right;}
+  
+  </style>
+{% endif %}
+{% endif %}
+
+<div class="my-5"></div>

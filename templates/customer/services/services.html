@@ -1,0 +1,133 @@
+{% extends "customer_base.html" %}
+{% load customer_tags %}
+
+{% block sheri %}
+<div class="container px-4 px-md-5 py-3">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">{{category.name}}</h1>
+
+    </div>
+
+    <main class="d-md-flex">
+        <div style="width: 250px;" class="pe-md-3 w-md-100 mb-3" >
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">بحث عن خدمة</label>
+                <input type="text" placeholder="اكتب هنا..." name="search" class="form-control" id="search-bar" aria-describedby="emailHelp">
+                <div id="emailHelp" class="form-text">هنا يمكنك البحث عن خدماتك للسهولة الوصول</div>
+            </div>
+            <button type="submit" class="btn btn-dark d-block mx-auto">بحث</button>
+        </div>
+        <div class="w-100">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+
+                {% for service in services %}
+                
+                <div class="col">
+                    <div class="card shadow-sm">
+                      <img src="{{service.0.img_base64}}" class="bd-placeholder-img card-img-top" width="100%" height="200">
+                      <div class="card-body">
+                        <p class="card-text">{{service.0.name}}</p>
+                        <div class="btn-group">
+                        <div class="mb-2">
+                          
+                          <svg style="display:none;">
+                            <defs>
+                              <symbol id="fivestars">
+                                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd"/>
+                                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(24)"/>
+                                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(48)"/>
+                                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(72)"/>
+                                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd"  transform="translate(96)"/>
+                              </symbol>
+                            </defs>
+                          </svg>
+                          <div class="rating">
+                            <progress class="rating-bg" value="{{service.0.get_rating_range}}" max="5"></progress>
+                            <svg><use xlink:href="#fivestars"/></svg>
+                          </div>
+                        </div>
+                        {% get_service_review service.0.id as service_reviews %}
+                        <p class="ms-1">({{service_reviews.count}})</p>
+
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+
+                          <div class="btn-group">
+                            <a href="{% url 'Service' service.0.id %}" class="btn btn-sm btn-outline-success">عرض</a>
+                            
+                          </div>
+                          <small class="text-body-secondary">{{service.0.when_updated}}</small>
+                          <small class="text-body-secondary">يبعد عنك {{service.1}}/كم</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Delete Modal -->
+                  <div class="modal fade" id="DelSerModal{{service.0.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content rounded-3 shadow">
+                        <div class="modal-body p-4 text-center">
+                          <h5 class="mb-0">هل انت متأكد من الحذف؟</h5>
+                          <p class="mb-0">بعد عملية حذف العنصر لا يمكنك استرجاعه مرا اخرى.</p>
+                        </div>
+                        <div class="modal-footer flex-nowrap p-0">
+                          <a href="{% url 'DeleteService' service.0.id %}" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0 border-end"><strong>نعم, أحذف</strong></a>
+                          <button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 py-3 m-0 rounded-0" data-bs-dismiss="modal">لا شكرا</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+
+            </div>
+            {% if not services %}
+            <p class="text-center mt-5 pt-5">لا يوجد خدماتك حالياََ</p>
+            {% endif %}           
+        </div>
+
+
+    </main>
+</div>
+
+
+
+
+
+<style>
+  
+.rating {
+  width: 120px;
+  height: 24px;
+  position: relative;
+  background-color: gray;
+}
+
+.rating progress.rating-bg {
+  -webkit-appearance: none;
+  -moz-appearence: none;
+  appearance: none;
+  border: none;
+  display: inline-block;
+  height: 24px;
+  width: 100%;
+  color: orange;
+}
+
+.rating progress.rating-bg::-webkit-progress-value {
+  background-color: orange;
+}
+
+.rating progress.rating-bg::-moz-progress-bar {
+  background-color: orange;
+}
+
+.rating svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+</style>
+{% endblock %}

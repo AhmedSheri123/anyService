@@ -1,0 +1,43 @@
+{% extends "customer_base.html" %}
+{% load static %}
+{% block sheri %}
+
+
+ <!-- Contact -->
+ <div class="px-3 my-5">
+    <div class="container py-3 border rounded shadow-lg" style="max-width: 568px;">
+        <form class="p-4 p-sm-5" method="post">
+            {% csrf_token %}
+            <div class="text-center">
+                {% comment %} <img width="130" src="{% static 'img/softmsg-logo.png' %}" alt="" class="mb-2"> {% endcomment %}
+                <h1 class="mb-3 text-dark">أي مهنة</h1>
+                
+                <h3 class="mb-3 text-dark">تسجيل الدخول</h3>
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-envelope"></i>
+                    البريد الالكتروني
+                </label>
+                {{form.email}}
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">
+                    <i class="fa-solid fa-star"></i>
+                    كلمة المرور
+                </label>
+                {{form.password}}
+            </div>
+
+
+            <button class="btn btn-dark mx-auto d-block">
+                سجل الدخول
+                <i class="fa-solid fa-caret-left"></i>
+            </button>
+        </form>
+    </div>
+</div>
+ <!-- End Contact -->
+
+{% endblock sheri %}
